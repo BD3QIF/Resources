@@ -16,7 +16,7 @@ const preMonth = [-44, -15, 15, 44]; //1599年农历十月及以后的月份, �
  保留    0(甲)     10(戌)   1月31日(春节)   闰八月   从左往右依次腊月, 冬月...闰八月, 八月, 七月...正月的天数
  农历月份对应的位为0, 表示这个月为29天(小月), 为1表示有30天(大月).
  */
-const monthInfo1 = [
+const monthInfo = [
     0x3CD80BA5, 0x19C20B49, 0x442C5A93, 0x18D20A95, 0x433D352D, 0x20600556, 0x4ACA0AB5, 0x2536D5AA, //1600-1607
     0x49DC05D2, 0x2CC40DA5, 0x01307D4A, 0x2BD60D4A, 0x00416A95, 0x33620A97, 0x0DCE0556, 0x32390AB5, //1608-1615
     0x0CDE0AD9, 0x39C806D2, 0x14328EA5, 0x38D80F25, 0x1344064A, 0x402A4C97, 0x1AD00AAB, 0x453D555A, //1616-1623
@@ -1652,14 +1652,6 @@ const Jieqi = [
 const Xingqi = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 const Other = ["小", "大", "", "闰"];
 
-const current = new Date(new Date().getTime() + 8 * 60 * 60 * 1000)
-const current_year = current.getFullYear();
-const current_month = current.getMonth() + 1; // 月份从0开始，因此需要加1
-const current_day = current.getDate();
-const current_hours = current.getHours();
-const current_minutes = current.getMinutes();
-const current_seconds = current.getSeconds();
-
 function isLeapYear(year) {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }
@@ -1748,7 +1740,7 @@ function getDayOfWeek(year, month, day) {
 }
 
 function getMonthInfo(lunarYear) {
-    let data = monthInfo1[lunarYear - start_year];
+    let data = monthInfo[lunarYear - start_year];
     data &= 0x7FFFFFFF
     return data;
 }
@@ -1971,10 +1963,10 @@ function getCalendarAll(year, month, day, hour, minute, second) {
             isJieqiToday: false
         },
         sizhu: {
-            year: {tiangan: -1, dizhi: -1},
-            month: {tiangan: -1, dizhi: -1},
-            day: {tiangan: -1, dizhi: -1},
-            hour: {tiangan: -1, dizhi: -1}
+            year: { tiangan: -1, dizhi: -1 },
+            month: { tiangan: -1, dizhi: -1 },
+            day: { tiangan: -1, dizhi: -1 },
+            hour: { tiangan: -1, dizhi: -1 }
         }
     };
 
@@ -2202,16 +2194,16 @@ function getCalendarAll(year, month, day, hour, minute, second) {
 
 function getDateInfo(year, month, day, hour, minute, second) {
     if (!checkDate(year, month, day, hour, minute, second)) {
-        return {result: "failed", data: {}};
+        return { result: "failed", data: {} };
     }
-    const calendar = getCalendarAll(current_year, current_month, current_day, current_hours, current_minutes, current_seconds);
-    return {result: "success", data: calendar};
+    const calendar = getCalendarAll(year, month, day, hour, minute, second);
+    return { result: "success", data: calendar };
 }
 
-(function main() {
-    const info = getDateInfo(current_year, current_month, current_day, current_hours, current_minutes, current_seconds);
-    const calendar = info.data;
+function getDateInfoString(year, month, day, hour, minute, second) {
+    const info = getDateInfo(year, month, day, hour, minute, second);
     if (info.result === "success") {
+        const calendar = info.data;
         const ret_str = `${Nums[Math.floor(calendar.lunar.lunarYear / 1000)]}${Nums[Math.floor(calendar.lunar.lunarYear / 100 % 10)]}` +
             `${Nums[Math.floor(calendar.lunar.lunarYear % 100 / 10)]}${Nums[Math.floor(calendar.lunar.lunarYear % 10)]}年 ` +
             `${Other[calendar.lunar.isLeapMonth + 2]}${Yueming[calendar.lunar.lunarMonth - 1]}(${Other[calendar.lunar.isDXYue + 0]}) ` +
@@ -2222,22 +2214,18 @@ function getDateInfo(year, month, day, hour, minute, second) {
             `${Tiangan[calendar.sizhu.hour.tiangan - 1]}${Dizhi[calendar.sizhu.hour.dizhi - 1]}时 ` +
             `${Jieqi[calendar.jieqi.jieqi - 1]}${calendar.jieqi.isJieqiToday ? '*' : ''} ` +
             `距离${Jieqi[calendar.jieqi.nextJieqi - 1]}还有${calendar.jieqi.nextJieqiRemainDays}天`;
-        // console.log(current_year, current_month, current_day, current_hours, current_minutes, current_seconds);
-        console.log(ret_str);
-        const fs = require('fs');
-        const py_code = "with open('./main.bak.js', 'r', encoding='utf-8') as f:\n" +
-            "    line = f.readline()\n" +
-            "    if line and line.startswith('window.onload'):\n" +
-            "        with open('./lunar-info.txt', 'r', encoding='utf-8') as f1:\n" +
-            "            line = 'window.onload = () => {console.log(\\'' + f1.readline().replace('\\n', '') + '\\');}\\n'\n" +
-            "    with open('./main.js', 'w', encoding='utf-8') as f2:\n" +
-            "        while line:\n" +
-            "            f2.write(line)\n" +
-            "            line = f.readline()\n\n";
-        try {
-            fs.writeFileSync('./workspace/main.py', py_code,'utf8');
-        } catch (error) {
-            console.error('Error:', error.message);
-        }
+        return ret_str;
     }
-})()
+    return null;
+}
+
+function getNowDateInfoStr() {
+    const current = new Date(new Date().getTime())
+    const current_year = current.getFullYear();
+    const current_month = current.getMonth() + 1; // 月份从0开始，因此需要加1
+    const current_day = current.getDate();
+    const current_hour = current.getHours();
+    const current_minute = current.getMinutes();
+    const current_second = current.getSeconds();
+    return current, getDateInfoString(current_year, current_month, current_day, current_hour, current_minute, current_second);
+}
