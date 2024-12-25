@@ -1,30 +1,12 @@
 (function (global, factory) {
     "use strict";
-
-    if (typeof module === "object" && typeof module.exports === "object") {
-        // For CommonJS and CommonJS-like environments where a proper `window`
-        // is present, execute the factory and get jQuery.
-        // For environments that do not have a `window` with a `document`
-        // (such as Node.js), expose a factory as module.exports.
-        // This accentuates the need for the creation of a real `window`.
-        // e.g. var jQuery = require("jquery")(window);
-        // See ticket trac-14549 for more info.
-        module.exports = global.document ?
-            factory(global, true) :
-            function (w) {
-                if (!w.document) {
-                    throw new Error("jQuery requires a window with a document");
-                }
-                return factory(w);
-            };
-    } else {
-        factory(global);
-    }
+    factory(global);
 })(typeof window !== "undefined" ? window : this, function (global) {
+    let _;
     const start_year = 1600; //起始年份 (公历)
     const end_year = 6400; //终止年份 (不包含该年)
-    const preLeapIndex = -1; //1599年农历十月及以后的闰月索引, 对应cPreMonth中的序号, 当前为-1, 表示1599年农历十月以后无闰月.
-    const preMonth = [-44, -15, 15, 44]; //1599年农历十月及以后的月份, 每月初一在1600年的年内序数. preMonth中分别对应农历的十月、冬月、腊月、正月.
+    const pre_leap_index = -1; //1599年农历十月及以后的闰月索引, 对应cPreMonth中的序号, 当前为-1, 表示1599年农历十月以后无闰月.
+    const pre_month = [-44, -15, 15, 44]; //1599年农历十月及以后的月份, 每月初一在1600年的年内序数. preMonth中分别对应农历的十月、冬月、腊月、正月.
 
     /*
      农历月份信息, 一年用4个字节表示.
@@ -39,7 +21,7 @@
      保留    0(甲)     10(戌)   1月31日(春节)   闰八月   从左往右依次腊月, 冬月...闰八月, 八月, 七月...正月的天数
      农历月份对应的位为0, 表示这个月为29天(小月), 为1表示有30天(大月).
      */
-    const monthInfo = [
+    const month_info = [
         0x3CD80BA5, 0x19C20B49, 0x442C5A93, 0x18D20A95, 0x433D352D, 0x20600556, 0x4ACA0AB5, 0x2536D5AA, //1600-1607
         0x49DC05D2, 0x2CC40DA5, 0x01307D4A, 0x2BD60D4A, 0x00416A95, 0x33620A97, 0x0DCE0556, 0x32390AB5, //1608-1615
         0x0CDE0AD9, 0x39C806D2, 0x14328EA5, 0x38D80F25, 0x1344064A, 0x402A4C97, 0x1AD00AAB, 0x453D555A, //1616-1623
@@ -666,7 +648,7 @@
     小寒 大寒 立春 雨水 惊蛰 春分 清明 谷雨 立夏 小满 芒种 夏至
     小暑 大暑 立秋 处暑 白露 秋分 寒露 霜降 立冬 小雪 大雪 冬至
     */
-    const STSource = [
+    const solar_terms_source = [
         0x1455, 0x1515, 0x1525, 0x1545, 0x1551, 0x1554, 0x1555, 0x1659, 0x165A, 0x1855, //0-9
         0x1959, 0x195A, 0x1966, 0x2154, 0x2155, 0x2566, 0x2569, 0x2599, 0x2945, 0x4545, //10-19
         0x4546, 0x4551, 0x4552, 0x4554, 0x4555, 0x4556, 0x4959, 0x495A, 0x4966, 0x514A, //20-29
@@ -692,10 +674,10 @@
     ];
 
     /*
-    节气数据的索引表, 数据对应“STSource[220]”中的索引.
-    比如, 起始年份 (1600年) 的节气数据为: STSource[STIndex[0]], STSource[STIndex[1]],STSource[STIndex[2]]这三个16位 (6字节) 数据.
+    节气数据的索引表, 数据对应“solar_terms_source[220]”中的索引.
+    比如, 起始年份 (1600年) 的节气数据为: solar_terms_source[solar_terms_index[0]], solar_terms_source[solar_terms_index[1]],solar_terms_source[solar_terms_index[2]]这三个16位 (6字节) 数据.
     */
-    const STIndex = [
+    const solar_terms_index = [
         0xAE, 0x3A, 0x9C, 0x58, 0x46, 0x3A, 0x99, 0x58, 0x46, 0xA3, 0x99, 0x58, 0xAE, 0x3A, 0x99, //1600-1604
         0x58, 0x46, 0x35, 0x99, 0x58, 0x46, 0x9C, 0x99, 0x58, 0xAE, 0x35, 0x99, 0x58, 0x46, 0x35, //1605-1609
         0x99, 0x58, 0x3B, 0x9C, 0x99, 0x58, 0xA4, 0x35, 0x99, 0x58, 0x3B, 0x35, 0x99, 0x47, 0x3B, //1610-1614
@@ -1658,32 +1640,35 @@
         0x27, 0x31, 0xD1, 0x2B, 0x33, 0x79, 0x04, 0x36, 0xBE, 0x05, 0x37, 0xCE, 0x27, 0x31, 0xD0  //6395-6399
     ];
 
-    const DayOrdinal = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
-    const DayOrdinalLeap = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
+    const day_ordinal = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
+    const day_ordinal_leap = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
     const Nums = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
 
-    const Riming = [
+    const riming = [
         "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五",
         "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
-    const Yueming = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"];
-    const Tiangan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
-    const Dizhi = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
-    const Shengxiao = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
-    const Jieqi = [
+    const yueming = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"];
+    const tiangan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+    const dizhi = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+    const shengxiao = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
+    const jieqi = [
         "立春", "雨水", "惊蛰", "春分", "清明", "谷雨", "立夏", "小满", "芒种", "夏至", "小暑", "大暑",
         "立秋", "处暑", "白露", "秋分", "寒露", "霜降", "立冬", "小雪", "大雪", "冬至", "小寒", "大寒"];
-    const Xingqi = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
-    const Other = ["小", "大", "", "闰"];
+    const xingqi = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+    const other = ["小", "大", "", "闰"];
 
     function isLeapYear(year) {
         return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
     }
 
     function checkDate(year, month, day, hour, minute, second) {
+        if (year === null || month === null || day === null || hour === null || minute === null || second === null) {
+            return false;
+        }
         if (year === undefined || month === undefined || day === undefined || hour === undefined || minute === undefined || second === undefined) {
             return false;
         }
-        if (year === null || month === null || day === null || hour === null || minute === null || second === null) {
+        if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day) || Number.isNaN(hour) || Number.isNaN(minute) || Number.isNaN(second)) {
             return false;
         }
         if (hour < 0 || hour > 23) {
@@ -1727,15 +1712,15 @@
     function getDayOrdinal(year, month, day) {
         let ordinal;
         if (isLeapYear(year)) {
-            ordinal = (DayOrdinalLeap[month - 1] + day - 1);//元旦为序数0, 因此减1
+            ordinal = (day_ordinal_leap[month - 1] + day - 1);//元旦为序数0, 因此减1
         } else {
-            ordinal = (DayOrdinal[month - 1] + day - 1);
+            ordinal = (day_ordinal[month - 1] + day - 1);
         }
         return ordinal;
     }
 
     function getDateFromOrdinal(year, ordinal) {
-        let dayOrdinal = isLeapYear(year) ? DayOrdinalLeap : DayOrdinal;
+        let dayOrdinal = isLeapYear(year) ? day_ordinal_leap : day_ordinal;
         let month = 0, day = 0;
         for (let i = 0; i < 12; i++) {
             if (dayOrdinal[i] <= ordinal && ordinal < dayOrdinal[i + 1]) {//找出月份
@@ -1754,7 +1739,7 @@
         } else if (month === 2) {
             days = isLeapYear(year) ? 29 : 28;
         } else if (3 <= month && month <= 11) {
-            days = DayOrdinal[month] - DayOrdinal[month - 1];
+            days = day_ordinal[month] - day_ordinal[month - 1];
         }
         return days;
     }
@@ -1769,7 +1754,7 @@
     }
 
     function getMonthInfo(lunarYear) {
-        let data = monthInfo[lunarYear - start_year];
+        let data = month_info[lunarYear - start_year];
         data &= 0x7FFFFFFF
         return data;
     }
@@ -1802,25 +1787,25 @@
         let DX_data;//该年大小月情况l
         let Acc_LeapMonth;
         if (lunarYear === start_year - 1) {//农历还在起始年份的前边一年
-            if (preLeapIndex === -1) {//无闰月
+            if (pre_leap_index === -1) {//无闰月
                 if (!leapMonth) {
-                    return preMonth[lunarMonth - 9] - preMonth[lunarMonth - 10];
+                    return pre_month[lunarMonth - 9] - pre_month[lunarMonth - 10];
                 } else {
                     return 0;
                 }
             } else {
-                Acc_LeapMonth = preLeapIndex + 9;
+                Acc_LeapMonth = pre_leap_index + 9;
                 if (Acc_LeapMonth > lunarMonth) {
                     if (!leapMonth) {
-                        return preMonth[lunarMonth - 9] - preMonth[lunarMonth - 10];
+                        return pre_month[lunarMonth - 9] - pre_month[lunarMonth - 10];
                     } else {
                         return 0;
                     }
                 } else {
                     if ((leapMonth && lunarMonth === Acc_LeapMonth) || lunarMonth > Acc_LeapMonth) {
-                        return preMonth[lunarMonth - 8] - preMonth[lunarMonth - 9];
+                        return pre_month[lunarMonth - 8] - pre_month[lunarMonth - 9];
                     } else {
-                        return preMonth[lunarMonth - 9] - preMonth[lunarMonth - 10];
+                        return pre_month[lunarMonth - 9] - pre_month[lunarMonth - 10];
                     }
                 }
             }
@@ -1855,21 +1840,21 @@
 
         if (lunarYear === start_year) {//农历年份是数据起始年份
             //处理起始年份之前一年的数据
-            if (preLeapIndex === -1) {//前一年没有闰月
-                daysOfMonth[pos] = preMonth[2] - preMonth[1];//农历上一年十一月总天数
+            if (pre_leap_index === -1) {//前一年没有闰月
+                daysOfMonth[pos] = pre_month[2] - pre_month[1];//农历上一年十一月总天数
                 pos++;
             } else {
-                if (preLeapIndex === 1) {//闰十月
-                    daysOfMonth[pos] = preMonth[3] - preMonth[2];//农历上一年十一月总天数
+                if (pre_leap_index === 1) {//闰十月
+                    daysOfMonth[pos] = pre_month[3] - pre_month[2];//农历上一年十一月总天数
                     pos++;
                 } else {//闰十一月或闰十二月
-                    daysOfMonth[pos] = preMonth[2] - preMonth[1];//农历上一年十一月总天数
+                    daysOfMonth[pos] = pre_month[2] - pre_month[1];//农历上一年十一月总天数
                     pos++;
-                    daysOfMonth[pos] = preMonth[3] - preMonth[2];//农历上一年十二月总天数
+                    daysOfMonth[pos] = pre_month[3] - pre_month[2];//农历上一年十二月总天数
                     pos++;
                 }
             }
-            daysOfMonth[pos] = getLunarNewYearOrdinal(lunarYear) - preMonth[2];//(闰)十二月
+            daysOfMonth[pos] = getLunarNewYearOrdinal(lunarYear) - pre_month[2];//(闰)十二月
             pos++;
         } else {
             leapMonth = getLunarLeapMonth(lunarYear - 1);//取得前一个农历年的闰月情况
@@ -1923,7 +1908,7 @@
         let days;//当前节气距离该年小寒的天数
         let remain;
 
-        jqData = STSource[STIndex[index]];
+        jqData = solar_terms_source[solar_terms_index[index]];
         xiaohanOrder = (jqData >> 14) + 3;//加上3，转为小寒的年内序数
         curJQData = (jqData >> 12) & 0x03;//当前计算的节气与上一个节气的天数差信息
 
@@ -1943,7 +1928,7 @@
                 curJQData = (jqData >> (16 - ((remain + 1) << 2))) & 0x03;
                 days += curJQData + 14;
                 if (remain === 3) {
-                    jqData = STSource[STIndex[index + Math.floor((i + 1) / 4)]];
+                    jqData = solar_terms_source[solar_terms_index[index + Math.floor((i + 1) / 4)]];
                 }
             }
             jieqiOrdinal[0] = days - curJQData - 14;//第一个节气的年内序数
@@ -2025,13 +2010,13 @@
             month = ((calendar.jieqi.nextJieqi + 1) / 2) % 12 + 1;//将下一个节气的序号转换到月份
             if (month === 1) {
                 if (year + 1 < end_year) {
-                    getJieqiData(calendar.solar.year + 1, month, jieqiDate, jieqiOrdinal);
+                    [jieqiDate, jieqiOrdinal] = getJieqiData(calendar.solar.year + 1, month);
                     calendar.jieqi.nextJieqiRemainDays = 31 - day + jieqiDate[0];
                 } else {
                     calendar.jieqi.nextJieqiRemainDays = -1;
                 }
             } else {
-                getJieqiData(calendar.solar.year, month, jieqiDate, jieqiOrdinal);
+                [jieqiDate, jieqiOrdinal] = getJieqiData(calendar.solar.year, month);
                 calendar.jieqi.nextJieqiRemainDays = jieqiOrdinal[0] - curOrdinal;
             }
         }
@@ -2221,6 +2206,11 @@
         return calendar;
     }
 
+    function getParamsFromTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        return [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()];
+    }
+
     function getDateInfo(year, month, day, hour, minute, second) {
         if (!checkDate(year, month, day, hour, minute, second)) {
             return { result: "failed", data: {} };
@@ -2235,21 +2225,21 @@
             const calendar = info.data;
             const ret_str = `${Nums[Math.floor(calendar.lunar.lunarYear / 1000)]}${Nums[Math.floor(calendar.lunar.lunarYear / 100 % 10)]}` +
                 `${Nums[Math.floor(calendar.lunar.lunarYear % 100 / 10)]}${Nums[Math.floor(calendar.lunar.lunarYear % 10)]}年 ` +
-                `${Other[calendar.lunar.isLeapMonth + 2]}${Yueming[calendar.lunar.lunarMonth - 1]}(${Other[calendar.lunar.isDXYue + 0]}) ` +
-                `${Riming[calendar.lunar.lunarDay - 1]} ${Xingqi[calendar.solar.week]} ` +
-                `${Tiangan[calendar.sizhu.year.tiangan - 1]}${Dizhi[calendar.sizhu.year.dizhi - 1]}(${Shengxiao[calendar.sizhu.year.dizhi - 1]})年 ` +
-                `${Tiangan[calendar.sizhu.month.tiangan - 1]}${Dizhi[calendar.sizhu.month.dizhi - 1]}月 ` +
-                `${Tiangan[calendar.sizhu.day.tiangan - 1]}${Dizhi[calendar.sizhu.day.dizhi - 1]}日 ` +
-                `${Tiangan[calendar.sizhu.hour.tiangan - 1]}${Dizhi[calendar.sizhu.hour.dizhi - 1]}时 ` +
-                `${Jieqi[calendar.jieqi.jieqi - 1]}${calendar.jieqi.isJieqiToday ? '*' : ''} ` +
-                `距离${Jieqi[calendar.jieqi.nextJieqi - 1]}还有${calendar.jieqi.nextJieqiRemainDays}天`;
+                `${other[calendar.lunar.isLeapMonth + 2]}${yueming[calendar.lunar.lunarMonth - 1]}(${other[calendar.lunar.isDXYue + 0]}) ` +
+                `${riming[calendar.lunar.lunarDay - 1]} ${xingqi[calendar.solar.week]} ` +
+                `${tiangan[calendar.sizhu.year.tiangan - 1]}${dizhi[calendar.sizhu.year.dizhi - 1]}(${shengxiao[calendar.sizhu.year.dizhi - 1]})年 ` +
+                `${tiangan[calendar.sizhu.month.tiangan - 1]}${dizhi[calendar.sizhu.month.dizhi - 1]}月 ` +
+                `${tiangan[calendar.sizhu.day.tiangan - 1]}${dizhi[calendar.sizhu.day.dizhi - 1]}日 ` +
+                `${tiangan[calendar.sizhu.hour.tiangan - 1]}${dizhi[calendar.sizhu.hour.dizhi - 1]}时 ` +
+                `${jieqi[calendar.jieqi.jieqi - 1]}${calendar.jieqi.isJieqiToday ? '*' : ''} ` +
+                `距离${jieqi[calendar.jieqi.nextJieqi - 1]}还有${calendar.jieqi.nextJieqiRemainDays}天`;
             return ret_str;
         }
         return null;
     }
 
     function getNowDateInfoStr() {
-        const current = new Date(new Date().getTime())
+        const current = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
         const current_year = current.getFullYear();
         const current_month = current.getMonth() + 1; // 月份从0开始，因此需要加1
         const current_day = current.getDate();
@@ -2264,11 +2254,11 @@
         getDateInfoString: getDateInfoString,
         getNowDateInfoStr: getNowDateInfoStr
     };
-
+    
     // 把模块暴露给全局对象，如果是浏览器环境则暴露为 window.Calendar
     if (typeof global !== "undefined") {
         global.Calendar = Calendar;
     }
-
+    
     return Calendar;
 })
