@@ -2259,6 +2259,6 @@
     if (typeof global !== "undefined") {
         global.Calendar = Calendar;
     }
-    console.log(global)
+    
     return Calendar;
 })
