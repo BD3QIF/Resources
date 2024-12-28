@@ -2225,14 +2225,14 @@
             const calendar = info.data;
             const ret_str = `${Nums[Math.floor(calendar.lunar.lunarYear / 1000)]}${Nums[Math.floor(calendar.lunar.lunarYear / 100 % 10)]}` +
                 `${Nums[Math.floor(calendar.lunar.lunarYear % 100 / 10)]}${Nums[Math.floor(calendar.lunar.lunarYear % 10)]}年 ` +
-                `${other[calendar.lunar.isLeapMonth + 2]}${yueming[calendar.lunar.lunarMonth - 1]}(${other[calendar.lunar.isDXYue + 0]}) ` +
+                `${other[calendar.lunar.isLeapMonth + 2]}${yueming[calendar.lunar.lunarMonth - 1]}(${other[calendar.lunar.isDXYue + 0]})` +
                 `${riming[calendar.lunar.lunarDay - 1]} ${xingqi[calendar.solar.week]} ` +
                 `${tiangan[calendar.sizhu.year.tiangan - 1]}${dizhi[calendar.sizhu.year.dizhi - 1]}(${shengxiao[calendar.sizhu.year.dizhi - 1]})年 ` +
                 `${tiangan[calendar.sizhu.month.tiangan - 1]}${dizhi[calendar.sizhu.month.dizhi - 1]}月 ` +
                 `${tiangan[calendar.sizhu.day.tiangan - 1]}${dizhi[calendar.sizhu.day.dizhi - 1]}日 ` +
                 `${tiangan[calendar.sizhu.hour.tiangan - 1]}${dizhi[calendar.sizhu.hour.dizhi - 1]}时 ` +
                 `${jieqi[calendar.jieqi.jieqi - 1]}${calendar.jieqi.isJieqiToday ? '*' : ''} ` +
-                `距离${jieqi[calendar.jieqi.nextJieqi - 1]}还有${calendar.jieqi.nextJieqiRemainDays}天`;
+                `距离${jieqi[calendar.jieqi.nextJieqi - 1]}还有${Nums[calendar.jieqi.nextJieqiRemainDays]}天`;
             return ret_str;
         }
         return null;
