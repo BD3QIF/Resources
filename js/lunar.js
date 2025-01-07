@@ -2223,13 +2223,12 @@
         const info = getDateInfo(year, month, day, hour, minute, second);
         if (info.result === "success") {
             const calendar = info.data;
-            const unit = calendar.jieqi.nextJieqiRemainDays % 10;
-            const nextJieqiRemainDays = Math.floor(calendar.jieqi.nextJieqiRemainDays / 10) === 1 ? `${Nums[10]}${Nums[unit]}` : `${Nums[unit]}`;
+            const nextJieqiRemainDays = Math.floor(calendar.jieqi.nextJieqiRemainDays / 10) === 1 ? `${Nums[10]}${Nums[calendar.jieqi.nextJieqiRemainDays % 10]}` : `${Nums[calendar.jieqi.nextJieqiRemainDays % 10]}`;
             const ret_str = `${Nums[Math.floor(calendar.lunar.lunarYear / 1000)]}${Nums[Math.floor(calendar.lunar.lunarYear / 100 % 10)]}` +
                 `${Nums[Math.floor(calendar.lunar.lunarYear % 100 / 10)]}${Nums[Math.floor(calendar.lunar.lunarYear % 10)]}年 ` +
-                `${other[calendar.lunar.isLeapMonth + 2]}${yueming[calendar.lunar.lunarMonth - 1]}(${other[calendar.lunar.isDXYue + 0]})` +
+                `${other[calendar.lunar.isLeapMonth + 2]}${yueming[calendar.lunar.lunarMonth - 1]}` + //(${other[calendar.lunar.isDXYue + 0]})
                 `${riming[calendar.lunar.lunarDay - 1]} ${xingqi[calendar.solar.week]} ` +
-                `${tiangan[calendar.sizhu.year.tiangan - 1]}${dizhi[calendar.sizhu.year.dizhi - 1]}(${shengxiao[calendar.sizhu.year.dizhi - 1]})年 ` +
+                `${tiangan[calendar.sizhu.year.tiangan - 1]}${dizhi[calendar.sizhu.year.dizhi - 1]}${shengxiao[calendar.sizhu.year.dizhi - 1]}年 ` +
                 `${tiangan[calendar.sizhu.month.tiangan - 1]}${dizhi[calendar.sizhu.month.dizhi - 1]}月 ` +
                 `${tiangan[calendar.sizhu.day.tiangan - 1]}${dizhi[calendar.sizhu.day.dizhi - 1]}日 ` +
                 `${tiangan[calendar.sizhu.hour.tiangan - 1]}${dizhi[calendar.sizhu.hour.dizhi - 1]}时 ` +
