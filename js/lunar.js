@@ -1642,7 +1642,7 @@
 
     const day_ordinal = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
     const day_ordinal_leap = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
-    const Nums = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+    const Nums = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
 
     const riming = [
         "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五",
@@ -2223,6 +2223,9 @@
         const info = getDateInfo(year, month, day, hour, minute, second);
         if (info.result === "success") {
             const calendar = info.data;
+            const decade = Math.floor(calendar.jieqi.nextJieqiRemainDays / 10);
+            const unit = Math.floor(calendar.jieqi.nextJieqiRemainDays % 10);
+            const nextJieqiRemainDays = decade === 1 ? `${Nums[10]}${Nums[unit]}` : `${Nums[unit]}`;
             const ret_str = `${Nums[Math.floor(calendar.lunar.lunarYear / 1000)]}${Nums[Math.floor(calendar.lunar.lunarYear / 100 % 10)]}` +
                 `${Nums[Math.floor(calendar.lunar.lunarYear % 100 / 10)]}${Nums[Math.floor(calendar.lunar.lunarYear % 10)]}年 ` +
                 `${other[calendar.lunar.isLeapMonth + 2]}${yueming[calendar.lunar.lunarMonth - 1]}(${other[calendar.lunar.isDXYue + 0]})` +
@@ -2232,7 +2235,7 @@
                 `${tiangan[calendar.sizhu.day.tiangan - 1]}${dizhi[calendar.sizhu.day.dizhi - 1]}日 ` +
                 `${tiangan[calendar.sizhu.hour.tiangan - 1]}${dizhi[calendar.sizhu.hour.dizhi - 1]}时 ` +
                 `${jieqi[calendar.jieqi.jieqi - 1]}${calendar.jieqi.isJieqiToday ? '*' : ''} ` +
-                `距离${jieqi[calendar.jieqi.nextJieqi - 1]}还有${Nums[calendar.jieqi.nextJieqiRemainDays]}天`;
+                `距离${jieqi[calendar.jieqi.nextJieqi - 1]}还有${nextJieqiRemainDays}天`;
             return ret_str;
         }
         return null;
@@ -2254,11 +2257,11 @@
         getDateInfoString: getDateInfoString,
         getNowDateInfoStr: getNowDateInfoStr
     };
-    
+
     // 把模块暴露给全局对象，如果是浏览器环境则暴露为 window.Calendar
     if (typeof global !== "undefined") {
         global.Calendar = Calendar;
     }
-    
+
     return Calendar;
 })
