@@ -2223,9 +2223,8 @@
         const info = getDateInfo(year, month, day, hour, minute, second);
         if (info.result === "success") {
             const calendar = info.data;
-            const decade = Math.floor(calendar.jieqi.nextJieqiRemainDays / 10);
-            const unit = Math.floor(calendar.jieqi.nextJieqiRemainDays % 10);
-            const nextJieqiRemainDays = decade === 1 ? `${Nums[10]}${Nums[unit]}` : `${Nums[unit]}`;
+            const unit = calendar.jieqi.nextJieqiRemainDays % 10;
+            const nextJieqiRemainDays = Math.floor(calendar.jieqi.nextJieqiRemainDays / 10) === 1 ? `${Nums[10]}${Nums[unit]}` : `${Nums[unit]}`;
             const ret_str = `${Nums[Math.floor(calendar.lunar.lunarYear / 1000)]}${Nums[Math.floor(calendar.lunar.lunarYear / 100 % 10)]}` +
                 `${Nums[Math.floor(calendar.lunar.lunarYear % 100 / 10)]}${Nums[Math.floor(calendar.lunar.lunarYear % 10)]}年 ` +
                 `${other[calendar.lunar.isLeapMonth + 2]}${yueming[calendar.lunar.lunarMonth - 1]}(${other[calendar.lunar.isDXYue + 0]})` +
