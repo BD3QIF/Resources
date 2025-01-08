@@ -2231,9 +2231,9 @@
                 `${tiangan[calendar.sizhu.year.tiangan - 1]}${dizhi[calendar.sizhu.year.dizhi - 1]}${shengxiao[calendar.sizhu.year.dizhi - 1]}年 ` +
                 `${tiangan[calendar.sizhu.month.tiangan - 1]}${dizhi[calendar.sizhu.month.dizhi - 1]}月 ` +
                 `${tiangan[calendar.sizhu.day.tiangan - 1]}${dizhi[calendar.sizhu.day.dizhi - 1]}日 ` +
-                `${tiangan[calendar.sizhu.hour.tiangan - 1]}${dizhi[calendar.sizhu.hour.dizhi - 1]}时 ` +
-                `${jieqi[calendar.jieqi.jieqi - 1]}${calendar.jieqi.isJieqiToday ? '*' : ''} ` +
-                `距离${jieqi[calendar.jieqi.nextJieqi - 1]}还有${nextJieqiRemainDays}天`;
+                `${tiangan[calendar.sizhu.hour.tiangan - 1]}${dizhi[calendar.sizhu.hour.dizhi - 1]}时` +
+                `${calendar.jieqi.isJieqiToday ? " 今天" + jieqi[calendar.jieqi.jieqi - 1] : ''}`+
+                ` 距离${jieqi[calendar.jieqi.nextJieqi - 1]}还有${nextJieqiRemainDays}天`;
             return ret_str;
         }
         return null;
